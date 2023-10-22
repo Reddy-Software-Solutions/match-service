@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: match-service
+  labels:
+    app: matchservice
+spec:
+  replicas: 2
+  strategy:
+     type: RollingUpdate
+  selector:
+    matchLabels:
+      app: matchservice
+  template:
+    metadata:
+      labels:
+        app: matchservice
+    spec:
+      containers:
+        - name: matchservice
+          image: ##REGISTRY_USERNAME##/match-service:##TAG##
+          livenessProbe:
+            httpGet:
+              port: 2859
+              path: /match-service/v1/actuator/health/liveness
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: 2859
+              path: /match-service/v1/actuator/health/readiness
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          ports:
+            - containerPort: 2859
